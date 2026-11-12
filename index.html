@@ -81,7 +81,6 @@ const PLACEMENTS = {
   name_p0: { page: 0, x: 505, y: 1150, maxW: 750 },
   city_p0: { page: 0, x: 505, y: 1250, maxW: 750 },
   name_p4: { page: 4, x: 235, y: 450,  maxW: 1150 },
-  city_p4: { page: 4, x: 235, y: 550,  maxW: 1150 },
 };
 
 const nameInput = document.getElementById('name');
@@ -102,7 +101,7 @@ function cleanText(val) {
 async function ensureFont() {
   if (fontLoaded) return;
   try {
-    await document.fonts.load('500 34px NotoSerifGujarati');
+    await document.fonts.load('500 52px NotoSerifGujarati');
   } catch (e) {
     // Fallback fonts still work if custom font fails to load
   }
@@ -117,23 +116,23 @@ async function getBasePdfBytes() {
   return cachedPdfBytes;
 }
 
-function renderTextPng(text, maxWidth, maxFont = 34) {
+function renderTextPng(text, maxWidth, maxFont = 52) {
   const scale = 2; // 2x resolution for crisp rendering
   const probe = document.createElement('canvas').getContext('2d');
   let fontSize = maxFont;
   let metrics = null;
 
-  for (let size = maxFont; size >= 15; size--) {
+  for (let size = maxFont; size >= 18; size--) {
     probe.font = `500 ${size}px "NotoSerifGujarati", Georgia, serif`;
     metrics = probe.measureText(text);
-    if (metrics.width + 8 <= maxWidth || size === 15) {
+    if (metrics.width + 8 <= maxWidth || size === 18) {
       fontSize = size;
       break;
     }
   }
 
   const width = Math.max(1, Math.min(maxWidth, Math.ceil(metrics.width) + 12));
-  const height = Math.max(60, Math.ceil(fontSize * 1.6) + 12);
+  const height = Math.max(80, Math.ceil(fontSize * 1.55) + 12);
 
   const canvas = document.createElement('canvas');
   canvas.width = width * scale;
@@ -181,7 +180,6 @@ async function generatePdfBytes(name, city) {
   await stamp(PLACEMENTS.name_p4, name);
   if (city) {
     await stamp(PLACEMENTS.city_p0, city);
-    await stamp(PLACEMENTS.city_p4, city);
   }
 
   return await pdfDoc.save();

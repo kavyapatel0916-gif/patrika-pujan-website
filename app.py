@@ -24,7 +24,6 @@ PLACEMENTS = {
     'city_p0': dict(page=0, x=505,  y=1250, max_w=750),
     # Page 5 (index 4) — confirmed via calibration grid
     'name_p4': dict(page=4, x=235,  y=450,  max_w=1150),
-    'city_p4': dict(page=4, x=235,  y=550,  max_w=1150),
 }
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -34,23 +33,23 @@ def clean_name(value):
     return value.strip()[:120]
 
 
-def render_text_png(text, max_width, font_size=34):
+def render_text_png(text, max_width, font_size=52):
     """Render *text* as a transparent RGBA PNG using the Gujarati font."""
     font = ImageFont.truetype(str(FONT_PATH), font_size)
-    probe = Image.new('RGBA', (max_width, 100), (255, 255, 255, 0))
+    probe = Image.new('RGBA', (max_width, 140), (255, 255, 255, 0))
     draw = ImageDraw.Draw(probe)
     bbox = draw.textbbox((0, 0), text, font=font)
     width = max(1, min(max_width, bbox[2] - bbox[0] + 8))
-    height = max(60, bbox[3] - bbox[1] + 12)
+    height = max(80, bbox[3] - bbox[1] + 12)
     img = Image.new('RGBA', (width, height), (255, 255, 255, 0))
     draw = ImageDraw.Draw(img)
     draw.text((4 - bbox[0], 4 - bbox[1]), text, font=font, fill=(84, 12, 35, 255))
     return img
 
 
-def fit_text_image(text, max_width, max_font=34):
+def fit_text_image(text, max_width, max_font=52):
     """Shrink font size until the rendered text fits within max_width."""
-    for size in range(max_font, 14, -1):
+    for size in range(max_font, 17, -1):
         img = render_text_png(text, max_width, size)
         if img.width <= max_width:
             return img
@@ -102,10 +101,9 @@ def make_pdf(name, city=''):
     stamp_page(writer, PLACEMENTS['name_p0'], name)
     stamp_page(writer, PLACEMENTS['name_p4'], name)
 
-    # Stamp city only when provided
+    # Stamp city on cover page only when provided
     if city:
         stamp_page(writer, PLACEMENTS['city_p0'], city)
-        stamp_page(writer, PLACEMENTS['city_p4'], city)
 
     out = BytesIO()
     writer.write(out)
