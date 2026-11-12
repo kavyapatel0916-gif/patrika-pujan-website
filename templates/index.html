@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Patrika Pujan Invitation</title>
+  <style>
+    :root{--maroon:#65132b;--gold:#b08a45;--cream:#fbf7f0;--ink:#291a20}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#f7efe5,#fffaf5);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    .wrap{max-width:1180px;margin:0 auto;padding:28px 18px 42px}
+    header{text-align:center;margin-bottom:20px}.orn{color:var(--maroon);letter-spacing:7px;font-size:20px}
+    h1{font-family:Georgia,serif;color:var(--maroon);margin:8px 0 4px;font-size:30px}.sub{margin:0;color:#705d62}
+    .card{background:rgba(255,255,255,.9);border:1px solid #dbc9b1;border-radius:18px;box-shadow:0 14px 40px rgba(80,35,45,.12);overflow:hidden}
+    .controls{padding:18px;display:flex;gap:12px;align-items:end;flex-wrap:wrap;border-bottom:1px solid #eadfd2;background:var(--cream)}
+    .field{flex:1;min-width:220px}.field label{display:block;font-weight:700;color:var(--maroon);margin-bottom:7px}
+    input{width:100%;height:48px;border:1px solid #cbb9a5;border-radius:10px;padding:0 14px;font-size:18px;background:#fff}
+    input:focus{outline:2px solid #d7b77a;border-color:var(--gold)}
+    .btn-row{display:flex;gap:10px;align-items:end;flex-shrink:0}
+    button{height:48px;border:0;border-radius:10px;padding:0 22px;font-size:16px;font-weight:700;cursor:pointer;background:var(--maroon);color:#fff}
+    button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#8d6a37}
+    .viewer{background:#e9e0d5;padding:18px}.viewer iframe{display:block;width:100%;height:78vh;min-height:620px;border:0;border-radius:10px;background:white;box-shadow:0 8px 25px rgba(0,0,0,.15)}
+    .hint{text-align:center;padding:12px 18px 18px;color:#75666a;font-size:14px}.status{text-align:center;color:var(--maroon);font-weight:600;min-height:22px}
+    @media(max-width:700px){h1{font-size:24px}.viewer iframe{height:70vh;min-height:520px}.controls{align-items:stretch}.field{min-width:100%}.btn-row{flex-direction:column}button{width:100%}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="orn">॥ मंगल परिणय ॥</div>
+    <h1>Patrika Pujan Invitation</h1>
+    <p class="sub">Enter the guest name and city/village. The original invitation design remains unchanged.</p>
+  </header>
+
+  <section class="card">
+    <form class="controls" id="form">
+      <div class="field">
+        <label for="name">Guest Name / મહેમાનનું નામ</label>
+        <input id="name" name="name" maxlength="120" autocomplete="off" placeholder="Enter guest name" required>
+      </div>
+      <div class="field">
+        <label for="city">City / Village / શહેર અથવા ગામ</label>
+        <input id="city" name="city" maxlength="120" autocomplete="off" placeholder="Enter city or village">
+      </div>
+      <div class="btn-row">
+        <button type="button" class="secondary" id="previewBtn" disabled>Preview</button>
+        <button type="submit" id="downloadBtn" disabled>Download PDF</button>
+      </div>
+    </form>
+    <div class="status" id="status"></div>
+    <div class="viewer">
+      <iframe id="pdfViewer" title="Patrika Pujan invitation preview" src="/assets/Patrika_Pujan_Original.pdf#page=5"></iframe>
+    </div>
+    <div class="hint">Line 1: Guest name &nbsp;|&nbsp; Line 2: City / Village &nbsp;—&nbsp; All other text, dates, artwork and pages stay unchanged.</div>
+  </section>
+</div>
+<script>
+const nameInput = document.getElementById('name');
+const cityInput = document.getElementById('city');
+const previewBtn = document.getElementById('previewBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const viewer = document.getElementById('pdfViewer');
+const status = document.getElementById('status');
+let blobUrl = null;
+
+function buildParams() {
+  const p = new URLSearchParams();
+  p.set('name', nameInput.value.trim());
+  if (cityInput.value.trim()) p.set('city', cityInput.value.trim());
+  return p.toString();
+}
+
+function sync() {
+  const ok = nameInput.value.trim().length > 0;
+  previewBtn.disabled = !ok;
+  downloadBtn.disabled = !ok;
+  status.textContent = '';
+}
+
+nameInput.addEventListener('input', sync);
+cityInput.addEventListener('input', sync);
+
+previewBtn.addEventListener('click', async () => {
+  const name = nameInput.value.trim();
+  if (!name) return;
+  status.textContent = 'Preparing preview…';
+  previewBtn.disabled = true;
+  try {
+    const r = await fetch('/preview?' + buildParams());
+    if (!r.ok) throw new Error('Could not create preview');
+    const blob = await r.blob();
+    if (blobUrl) URL.revokeObjectURL(blobUrl);
+    blobUrl = URL.createObjectURL(blob);
+    viewer.src = blobUrl + '#page=5';
+    status.textContent = 'Preview updated. Showing page 5 (guest name page).';
+  } catch(e) {
+    status.textContent = 'Could not create preview. Please try again.';
+  } finally {
+    previewBtn.disabled = false;
+  }
+});
+
+document.getElementById('form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!nameInput.value.trim()) return;
+  status.textContent = 'Creating your PDF…';
+  window.location.href = '/download?' + buildParams();
+});
+
+sync();
+</script>
+</body>
+</html>

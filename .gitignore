@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Debug and calibration artifacts
+calibrate.py
+calibration_page*.pdf
+ruler_test.pdf
+sample_output.pdf
+font_test.png
+name_debug.png
+dom_test.py
+
+# Duplicate root PDF (active PDF is in assets/Patrika_Pujan_Original.pdf)
+Patrika_pujan_website.pdf
