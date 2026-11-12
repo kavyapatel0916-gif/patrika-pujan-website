@@ -11,7 +11,7 @@ from reportlab.lib.utils import ImageReader
 BASE = Path(__file__).resolve().parent
 PDF_PATH = BASE / 'assets' / 'Patrika_Pujan_Original.pdf'
 FONT_PATH = BASE / 'assets' / 'NotoSerifGujarati-Medium.ttf'
-HTML_PATH = BASE / 'templates' / 'index.html'
+HTML_PATH = BASE / 'index.html'
 HOST, PORT = '0.0.0.0', 5000
 
 # ── Coordinate map ────────────────────────────────────────────────────────────
